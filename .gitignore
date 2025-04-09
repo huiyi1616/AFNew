@@ -4,4 +4,10 @@ __pycache__/
 venv/
 .env
 .ipynb_checkpoints/
-data/
+data/dataloader_data/
+data/Peak_Windows_MAT
+data/*.csv
+data/*.mat
+data/*.npy
+data/*.pkl
+.spyproject/
