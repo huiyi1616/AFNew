@@ -1,19 +1,21 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import os
 
 from config.constants import (
     SYNTHESIS_SAVE_PATH, SYNTHESIS_DATA_FOLDER, ELECTRODE_X, ELECTRODE_Y,
-    NUM_SAMPLES, GRID_RESOLUTION, X_MIN, X_MAX, Y_MIN, Y_MAX, COORDS, POINTS
+    NUM_SAMPLES, GRID_RESOLUTION, X_MIN, X_MAX, Y_MIN, Y_MAX, COORDS, POINTS, BASE_DIR
 )
 
 
 # === 📌 加载预测数据 ===
-predicted_maps = np.load("predicted_activation_maps_synthesis.npy")
-true_maps = np.load("true_activation_maps_synthesis.npy")
-predicted_times = np.load("predicted_activation_times_synthesis.npy")        
-true_times = np.load("true_activation_times_synthesis.npy")                  
-test_electrograms = np.load("test_electrograms_synthesis.npy")
+result_folder = os.path.join(BASE_DIR, "results", "results_for_visualization")
+predicted_maps = np.load(os.path.join(result_folder, "predicted_activation_maps_synthesis.npy"))
+true_maps = np.load(os.path.join(result_folder, "true_activation_maps_synthesis.npy"))
+predicted_times = np.load(os.path.join(result_folder, "predicted_activation_times_synthesis.npy"))       
+true_times = np.load(os.path.join(result_folder, "true_activation_times_synthesis.npy"))                  
+test_electrograms = np.load(os.path.join(result_folder, "test_electrograms_synthesis.npy"))
 
 print("✅ 合成数据加载成功！")
 

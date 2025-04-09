@@ -104,10 +104,10 @@ def test_model(model_path, data_dir, batch_size=32, device=None):
 
 if __name__ == "__main__":
     model_path = os.path.join(BASE_DIR, "models", "AFNetResNet_planar_only.pth")
-    validation_data_dir = os.path.join(SYNTHESIS_DATA_FOLDER, "validation")
+    validation_data_dir = os.path.join(SYNTHESIS_SAVE_PATH, "validation")
     results = test_model(model_path, validation_data_dir)
 
-    result_folder = os.path.join(SYNTHESIS_DATA_FOLDER, "results", "results_for_visualization")
+    result_folder = os.path.join(BASE_DIR, "results", "results_for_visualization")
     
     np.save(os.path.join(result_folder, "test_electrograms_synthesis.npy"), results["electrograms"])
     np.save(os.path.join(result_folder, "predicted_activation_times_synthesis.npy"), results["activation_times_pred"])

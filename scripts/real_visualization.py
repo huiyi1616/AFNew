@@ -3,14 +3,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from config.constants import (
-    ELECTRODE_X, ELECTRODE_Y, COORDS,
+    ELECTRODE_X, ELECTRODE_Y, COORDS, BASE_DIR,
     NUM_SAMPLES, GRID_RESOLUTION, X_MIN, X_MAX, Y_MIN, Y_MAX, POINTS
 )
+import os
 
-# === 📌 加载预测数据 ===
-predicted_maps = np.load("predicted_activation_maps_real.npy")        # (N, 100, 100)
-predicted_times = np.load("predicted_activation_times_real.npy")      # (N, 19)
-test_electrograms = np.load("test_electrograms_real.npy")             # (N, 19, 250)
+
+result_folder = os.path.join(BASE_DIR, "results", "results_for_visualization")
+predicted_maps = np.load(os.path.join(result_folder, "predicted_activation_maps_real.npy"))       # (N, 100, 100)
+predicted_times = np.load(os.path.join(result_folder, "predicted_activation_times_real.npy"))      # (N, 19)
+test_electrograms = np.load(os.path.join(result_folder, "test_electrograms_real.npy"))            # (N, 19, 250)
 
 print("✅ 预测数据加载成功！")
 
@@ -35,7 +37,7 @@ def compute_direction_vectors_numpy(activation_times, coords, neighbor_radius=5.
 
 
 # === 📌 可视化多个样本 ===
-num_visualizations = 100
+num_visualizations = 50
 for i in range(min(num_visualizations, len(predicted_maps))):
     print(f"\n🔍 Sample {i}")
 

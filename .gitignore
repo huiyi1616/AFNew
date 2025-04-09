@@ -11,3 +11,4 @@ data/*.mat
 data/*.npy
 data/*.pkl
 .spyproject/
+results/*

@@ -11,14 +11,16 @@ from scipy.ndimage import gaussian_filter
 from train_baseline import AFNetResNet
 from utils.signal_processing import min_max_normalize
 from config.constants import (
-    REAL_DATA_FOLDER, ELECTRODE_X, ELECTRODE_Y,
+    REAL_DATA_FOLDER, ELECTRODE_X, ELECTRODE_Y, BASE_DIR,
     NUM_SAMPLES, GRID_RESOLUTION, X_MIN, X_MAX, Y_MIN, Y_MAX, POINTS
 )
-# === 📌 路径设置 ===
-model_path = "best_AFNetResNet_planar_only.pth"
+from config.train_config import DEVICE
+
+
+model_path = os.path.join(BASE_DIR, "models", "AFNetResNet_planar_only.pth")
 test_data_path = REAL_DATA_FOLDER
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = DEVICE
 model = AFNetResNet().to(device)
 model.load_state_dict(torch.load(model_path, map_location=device))
 model.eval()
@@ -27,12 +29,12 @@ model.eval()
 all_test_files = [f for f in os.listdir(test_data_path) if f.endswith('.mat')]
 print(f"📂 Found {len(all_test_files)} test samples")
 
-# === 📌 初始化结果列表 ===
+
 predicted_maps = []
 predicted_times = []
 test_electrograms = []
 
-# === 📌 主处理流程 ===
+
 for test_file in tqdm(all_test_files, desc="🔍 Predicting"):
     try:
         mat_data = scipy.io.loadmat(os.path.join(test_data_path, test_file))
@@ -80,9 +82,11 @@ for test_file in tqdm(all_test_files, desc="🔍 Predicting"):
         continue
 
 # === ✅ 保存结果 ===
-np.save("test_electrograms_real.npy", np.array(test_electrograms))
-np.save("predicted_activation_times_real.npy", np.array(predicted_times))
-np.save("predicted_activation_maps_real.npy", np.array(predicted_maps))
+result_folder = os.path.join(BASE_DIR, "results", "results_for_visualization")
+ 
+np.save(os.path.join(result_folder, "test_electrograms_real.npy"), np.array(test_electrograms))
+np.save(os.path.join(result_folder, "predicted_activation_times_real.npy"), np.array(predicted_times))
+np.save(os.path.join(result_folder, "predicted_activation_maps_real.npy"), np.array(predicted_maps))
 
 print("\n✅ 所有测试结果已保存为 .npy 文件！")
 
