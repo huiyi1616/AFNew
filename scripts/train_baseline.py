@@ -68,14 +68,24 @@ def fast_compute_direction_vectors(activation_times, coords, neighbor_radius=5.0
     return direction_vectors
 
 
+def monotonicity_loss(activation_time, coords, radius=5.0):
+    B, N = activation_time.shape
+    diffs = coords.unsqueeze(0) - coords.unsqueeze(1)
+    dists = torch.norm(diffs, dim=-1)
+    mask = ((dists < radius) & (dists > 0)).float()  # 只对邻居生效
+    diff_time = activation_time.unsqueeze(2) - activation_time.unsqueeze(1)
+    penalty = F.relu(-diff_time)  # 若违反单调性，则惩罚
+    return torch.sum(penalty * mask.unsqueeze(0)) / (torch.sum(mask) + 1e-8)
+
 
 # === ✅ Directional Loss Function ===
 def directional_vector_loss(pred_vectors, true_vectors):
     pred_unit = F.normalize(pred_vectors, dim=-1)
     true_unit = F.normalize(true_vectors, dim=-1)
     cosine_sim = torch.sum(pred_unit * true_unit, dim=-1)  # (B, 19)
-    return 1 - torch.mean(cosine_sim)  # 越接近1表示越方向一致
-
+    return 1 - torch.mean(cosine_sim ** 2)  # 越接近1表示越方向一致
+    ## 用余弦相似度的平方loss来强化一致性
+    
 
 # **📌 数据集定义**
 class ElectrogramDataset(torch.utils.data.Dataset):
@@ -157,7 +167,7 @@ def train(model, dataloader, criterion_map, criterion_time, optimizer, device):
         true_dirs = fast_compute_direction_vectors(activation_times_target, points_tensor.to(device))
         loss_dir_vec = directional_vector_loss(pred_dirs, true_dirs)
 
-        loss = 0.1 * loss_map + 0.1 * loss_time + 0.8 * loss_dir_vec
+        loss = loss_dir_vec
 
 
         loss.backward()
@@ -217,7 +227,9 @@ def evaluate(model, dataloader, criterion_map, criterion_time, device):
             pred_dirs = fast_compute_direction_vectors(activation_time_pred, points_tensor.to(device))
             true_dirs = fast_compute_direction_vectors(activation_times_target, points_tensor.to(device))
             loss_dir_vec = directional_vector_loss(pred_dirs, true_dirs)
-            loss = 0.1 * loss_map + 0.1 * loss_time + 0.8 * loss_dir_vec
+            loss_mono = monotonicity_loss(activation_time_pred, points_tensor.to(device))
+
+            loss = loss_dir_vec + loss_mono
             
             
             total_loss += loss.item()
